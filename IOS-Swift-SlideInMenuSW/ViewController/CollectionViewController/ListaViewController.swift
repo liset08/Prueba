@@ -25,6 +25,7 @@ class ListaViewController: UIViewController, UICollectionViewDelegate, UICollect
     
     @IBOutlet weak var popupView: UIView!
     /////
+    var idss = ""
     
     var ref : DatabaseReference!
     var listas = [Lista](){
@@ -32,6 +33,10 @@ class ListaViewController: UIViewController, UICollectionViewDelegate, UICollect
             collections.reloadData()
             
         }
+    }
+    @IBAction func back(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -81,7 +86,25 @@ class ListaViewController: UIViewController, UICollectionViewDelegate, UICollect
         return cell
         
     }
-    
+        
+        func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+            let lista = listas[indexPath.row]
+             idss = lista.idlis
+            performSegue(withIdentifier: "versnapsegue", sender: lista)
+            
+        }
+        
+        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+            if segue.identifier == "versnapsegue" {
+                let siguienteVC = segue.destination as! ListProductViewController
+                siguienteVC.listaID = idss
+                print("RESULTTT..IDLIST... \(idss)")
+
+
+                
+                
+            }
+        }
 
 
 }

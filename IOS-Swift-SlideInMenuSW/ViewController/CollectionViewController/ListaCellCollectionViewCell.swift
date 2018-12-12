@@ -14,12 +14,14 @@ class ListaCellCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var nombreListCell: UILabel!
     
+    @IBOutlet weak var precioCell: UILabel!
+    
     var lista: Lista? {
         didSet {
             if let lista = lista {
                 fechaCell.text = lista.fecha
                 nombreListCell.text = lista.nombre
-                
+              precioCell.text = String(lista.preciotot)
                 
             }
         }
@@ -29,6 +31,8 @@ class ListaCellCollectionViewCell: UICollectionViewCell {
        // productImageView.image = #imageLiteral(resourceName: "list_Camera")
         fechaCell.text = "fecha"
         nombreListCell.text = "nombre"
+      precioCell.text = "preciotot"
+
         
     }
 }

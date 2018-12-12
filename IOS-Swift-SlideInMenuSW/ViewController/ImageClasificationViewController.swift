@@ -24,7 +24,13 @@ class ImageClasificationViewController: UIViewController {
 
     var ide = ""
     //datos de la lista
-    
+    var nume : Double = 0.0
+    var preciototXpro : Double = 0.0
+
+    var conteofin : Int = 0
+
+    var number = 0
+
     @IBOutlet weak var namelist: UILabel!
     @IBOutlet weak var fechlist: UILabel!
     
@@ -41,6 +47,20 @@ class ImageClasificationViewController: UIViewController {
     
     @IBOutlet weak var addButton: UIButton!
     
+    
+    ///Stapped
+    
+    @IBOutlet weak var conteo: UILabel!
+    @IBAction func stepped(_ sender: UIStepper) {
+        
+        number = Int(sender.value)
+        conteo.text = String(number)
+        conteofin = Int(conteo.text!)!
+        
+    }
+    
+    
+    //Stapped
     
   /*  var producto: Producto? {
         didSet {
@@ -63,8 +83,11 @@ class ImageClasificationViewController: UIViewController {
         addButton.isEnabled = false
         addButton.backgroundColor = .gray
         print("IDLIST_IMAGE.... \(ids)")
-
+        ide = "p"+"\(Int(Date.timeIntervalSinceReferenceDate * 1000))"
+        precio.layer.masksToBounds = true
+        precio.layer.cornerRadius = 5
         picker.delegate = self
+        
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -80,15 +103,43 @@ class ImageClasificationViewController: UIViewController {
     @IBAction func didTapSubmit(_ sender: Any) {
         let classificationLabel = self.classificationLabel.text ?? ""
         let nombre = self.classificationLabel.text ?? ""
-
-        let producto = Producto(nombre: nombre,categoria: classificationLabel,imagePath: productoImagePath)
+        let fin = self.precio.text
+        var cat: String = ""
+        self.preciototXpro = Double(fin!)! * Double(self.number)
+        print("mirarrrrprecioo: ......***\(self.preciototXpro)")
+        
+        //Clasificar categoria por el nombre obtenido del reconocimineto
+        
+        let strdos = classificationLabel
+        // Obtener un string de una cadena especificando el numero
+        let indexd: String.Index = strdos.index(of: "_")!
+        let string = String(strdos[indexd...])
+        
+        let index: String.Index = string.index(string.startIndex, offsetBy: 1)
+        let result: String = string.substring(to: index)
+        
+        //Condicion para obtener solo los que comincen con la letra "S"
+        if result == "_"{
+            //Comprara para obtener datos de la cadena de string
+            let a = string.substr(1)//"2345"
+            cat = a!
+            //  let result: String = strdos.substring(to: string)
+            
+            print("CATEGORIAASSSS: ......***\(cat)")}
+        
+        ///....
+        
+        let producto = Producto(nombre: nombre,categoria: cat,imagePath: productoImagePath, precio: nume , id: ide, numprod:conteofin,totXpro: preciototXpro)
     
         // Create the unicorn and record it
       
+       
         writeProductToDatabase(producto)
         
         // Return to Unicorns Table VC
         navigationController?.popViewController(animated: true)
+        dismiss(animated: true, completion: nil)
+
     }
     
     fileprivate let picker = UIImagePickerController()
@@ -106,9 +157,8 @@ class ImageClasificationViewController: UIViewController {
    
     fileprivate func writeProductToDatabase(_ producto: Producto) {
         // Access the "unicorns" child reference and then access (create) a unique child reference within it and finally set its value
-        ref.child("usuarios").child(Auth.auth().currentUser!.uid).child("lista").child(ids).child("producto").child(producto.nombre + "\(Int(Date.timeIntervalSinceReferenceDate * 1000))").setValue(producto.toAnyObject())
+ ref.child("usuarios").child(Auth.auth().currentUser!.uid).child("lista").child(ids).child("producto").child(ide).setValue(producto.toAnyObject())
         
-        ide = producto.nombre + "\(Int(Date.timeIntervalSinceReferenceDate * 1000))"
         print("Resultado.... \(ide)")
 
     }
@@ -126,6 +176,8 @@ class ImageClasificationViewController: UIViewController {
         addButton.isEnabled = true
         addButton.backgroundColor = .green
         addButton.tintColor = .white
+        
+
     }
     
     
@@ -145,7 +197,7 @@ class ImageClasificationViewController: UIViewController {
             // Initialize Vision Core ML model from base Watson Visual Recognition model
             
             //  Uncomment this line to use the tools model.
-            let model = try VNCoreMLModel(for: PRODUCTOS_502892208().model)
+            let model = try VNCoreMLModel(for: ComradeApp_1599103352().model)
             //  Uncomment this line to use the plants model.
             // let model = try VNCoreMLModel(for: watson_plants().model)
             
@@ -259,6 +311,24 @@ class ImageClasificationViewController: UIViewController {
 //...
 
        }
+extension String {
+    func substr(_ start:Int, length:Int=0) -> String? {
+        guard start > -1 else {
+            return nil
+        }
+        
+        let count = self.characters.count - 1
+        
+        guard start <= count else {
+            return nil
+        }
+        
+        let startOffset = max(0, start)
+        let endOffset = length > 0 ? min(count, startOffset + length - 1) : count
+        
+        return String(self[self.index(self.startIndex, offsetBy: startOffset)...self.index(self.startIndex, offsetBy: endOffset)])
+    }
+}
     extension ImageClasificationViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         // MARK: - Handling Image Picker Selection
         
@@ -298,7 +368,7 @@ class ImageClasificationViewController: UIViewController {
                     self.dismiss(animated: true, completion: nil)
                     return
                 }
-                
+             ///Detectar el texto y mostrarlo en un view
                 self.resultView.text = "Detected Text Has \(features.count) Blocks:\n\n"
 
                     for block in features {
@@ -306,19 +376,76 @@ class ImageClasificationViewController: UIViewController {
                        // if (block as! String == "60.30"){
                         self.resultView.text = self.resultView.text + "\(block.text)\n\n"
                         
-                      /*  if block.text == "60.30"{
-                            print("hola")
-                            self.precio.text = block.text
-                        }*/
+                        
+                        let str = block.text
+                   // Obtener un string de una cadena especificando el numero
+                        let index: String.Index = str.index(str.startIndex, offsetBy: 1)
+                        let result: String = str.substring(to: index)
 
-                        let num = Double(block.text)
-                        if num != nil {
+                        //Condicion para obtener solo los que comincen con la letra "S"
+                        if result == "S"{
+                            //Comprara para obtener datos de la cadena de string
+                            let abss = block.text.substr(4)//"2345"
+
+                           let abs = block.text.substr(3)//"2345"
+                            let ab2 = block.text.substr(2)//"2345"
+                            let ab1 = block.text.substr(1)//"2345"
+
+
+                                
+                            //convertir double
+                            print("text cortado: ......***\(abs!)")
+                            //print(abs!)
+                            let num = Double(abs!)
+                            let num2 = Double(ab2!)
+                            let num1 = Double(ab1!)
+                            let num3 = Double(abss!)
+
+
+                            //Condicion para el string y asi solo obtener numeros decimales
+                            if num != nil {
+                                print("text cortado1: ......***\(num!)")
+                                self.precio.text = abs
+
+                                self.nume = Double(num!)
+                                
+                            }else if num2 != nil {
+                                print("text cortado2: ......***\(ab2!)")
+                                self.precio.text = ab2
+                                
+                                self.nume = Double(num2!)
+                            }else if num1 != nil {
+                                print("text cortado3: ......***\(ab1!)")
+                                self.precio.text = ab1
+                                
+                                self.nume = Double(num1!)
+                            }else if num3 != nil {
+                                print("text cortado4: ......***\(abss!)")
+                                self.precio.text = abss
+                                
+                                self.nume = Double(num3!)
+                            }
+                 
+
+                        }
+                        //let num = Double(block.text)
+
+                      /*  if tnum == "S.\(block.text)"{
+                            print(tnum)
+
+                        }*/
+                    /*  if num != nil {
                             self.precio.text = block.text
+                            self.nume = Double(block.text)!
+                       
                         }else{
                             print("NoValido")
 
-                        }
-
+                        }*/
+                     /*   if block.text == "S.\(num)"{
+                            print("hola")
+                            self.precio.text = block.text
+                        }*/
                 }
                
             })
